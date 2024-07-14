@@ -21,9 +21,13 @@ export const resolvers = {
         
         jobs: () => getJobs(),
     },
-
+ 
     Mutation: {
-        createJob: (_root, {input: {title, description} }) => {
+        createJob: (_root, {input: {title, description} }, {auth}) => {
+            if(!auth) {
+                throw unauthorizedError ("Missing authoritation");
+            }
+            
             const companyId = 'FjcJCHJALA4i'; //Todo set based on user
             return createJob({ companyId, title, description })
         },
@@ -52,6 +56,13 @@ function notFoundError (message) {
         extensions: { code: 'NOT_FOUND' },
     });
 }
+
+function unauthorizedError (message) {
+    return new GraphQLError(message, {
+        extensions: { code: 'Unauthorized' },
+    });
+}
+
 function toIsoDate(value) {
     return value.slice(0, 'yyyy-mm-dd'.length);
 }
